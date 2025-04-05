@@ -1,0 +1,350 @@
+/* Anti-Design Quiz Styling */
+
+/* Global Styles */
+body {
+  font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+  background-image: linear-gradient(45deg, #ff00ff, #00ffff);
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><circle cx="12" cy="12" r="10" fill="yellow"/><circle cx="8" cy="9" r="2" fill="black"/><circle cx="16" cy="9" r="2" fill="black"/><path d="M7 15 C 10 18, 14 18, 17 15" stroke="black" stroke-width="2"/></svg>'), auto;
+}
+
+.quiz-app-container {
+  transform: rotate(1deg);
+}
+
+/* Header Styles */
+header {
+  background: repeating-linear-gradient(45deg, #ff0000, #ff0000 10px, #ffff00 10px, #ffff00 20px) !important;
+  border-bottom: 7px dotted #00ff00;
+  transform: skew(-5deg);
+  box-shadow: 8px 8px 0 #000000;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  text-shadow: 3px 3px 0 #ff00ff, -3px -3px 0 #00ffff;
+  letter-spacing: 5px;
+  transform: rotate(-2deg);
+  font-size: 2.5rem !important;
+  animation: wiggle 2s infinite;
+}
+
+nav button {
+  transform: rotate(2deg);
+  border: 3px solid black !important;
+  box-shadow: 5px 5px 0 #000000;
+  margin-top: 5px !important;
+  font-weight: bold !important;
+  letter-spacing: 1px;
+}
+
+nav button:nth-child(1) {
+  background-color: #ff88ee !important;
+  transform: rotate(-3deg);
+}
+
+nav button:nth-child(2) {
+  background-color: #88eeff !important;
+  transform: rotate(3deg);
+}
+
+/* Main Content Styles */
+main {
+  padding: 20px !important;
+}
+
+/* Home Page Styles */
+.home-card {
+  background-color: #ffff88 !important;
+  border: 5px dashed #ff00ff;
+  transform: rotate(-1deg);
+  box-shadow: 10px 10px 0 #000000;
+}
+
+.home-card h2 {
+  text-decoration: underline wavy #ff0000;
+  color: #ff00cc !important;
+  transform: rotate(1deg);
+  letter-spacing: 2px;
+}
+
+.home-card button {
+  background: linear-gradient(to right, #ff00ff, #ff8800) !important;
+  border: 4px solid #000000 !important;
+  transform: rotate(-2deg);
+  box-shadow: 6px 6px 0 #000000;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  padding: 10px 25px !important;
+}
+
+.feature-card {
+  border: 3px solid #000000;
+  transform: rotate(2deg);
+}
+
+.feature-card:nth-child(odd) {
+  background-color: #88ff88 !important;
+  transform: rotate(-2deg);
+}
+
+.feature-card:nth-child(even) {
+  background-color: #ff88ff !important;
+  transform: rotate(3deg);
+}
+
+/* Game Page Styles */
+.game-container {
+  background-color: #88ffff !important;
+  border: 5px solid #ff00ff;
+  border-style: double;
+  transform: rotate(-1deg);
+  box-shadow: 10px 10px 0 #000000;
+}
+
+.question-indicator {
+  background-color: #ffff88 !important;
+  border: 3px solid black;
+  transform: rotate(-2deg);
+  font-weight: bold !important;
+}
+
+.score-indicator {
+  background-color: #ff88ff !important;
+  border: 3px solid black;
+  transform: rotate(2deg);
+  font-weight: bold !important;
+}
+
+.timer-indicator {
+  animation: pulse 1s infinite;
+  border: 3px solid black;
+  font-weight: bold !important;
+}
+
+.question-text {
+  font-size: 1.5rem !important;
+  text-decoration: underline;
+  color: #ff00cc !important;
+  transform: rotate(-1deg);
+  padding: 10px !important;
+  margin: 20px 0 !important;
+  border-left: 10px solid #ff00ff;
+}
+
+.option-button {
+  background-color: #ffffff !important;
+  border: 3px solid #000000 !important;
+  margin-bottom: 15px !important;
+  padding: 15px !important;
+  transform: rotate(-1deg);
+  font-weight: bold !important;
+  box-shadow: 5px 5px 0 #000000;
+  transition: all 0.2s !important;
+}
+
+.option-button:nth-child(odd) {
+  transform: rotate(1deg);
+}
+
+.option-button:hover {
+  background-color: #ffff88 !important;
+  transform: scale(1.05) rotate(-1deg) !important;
+}
+
+.correct-answer {
+  background-color: #88ff88 !important;
+  border: 3px dashed #00aa00 !important;
+  animation: tada 1s;
+}
+
+.wrong-answer {
+  background-color: #ff8888 !important;
+  border: 3px dashed #aa0000 !important;
+  transform: rotate(-2deg) scale(0.95) !important;
+}
+
+.feedback-text {
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  padding: 10px !important;
+  text-align: center;
+  animation: bounce 1s infinite;
+}
+
+.next-button {
+  background: linear-gradient(to right, #00ffff, #0088ff) !important;
+  border: 4px solid #000000 !important;
+  transform: rotate(-2deg);
+  box-shadow: 6px 6px 0 #000000;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  letter-spacing: 1px;
+  padding: 10px 25px !important;
+  margin-top: 15px !important;
+}
+
+/* Results Panel */
+.results-container {
+  background-color: #ffff88 !important;
+  border: 5px solid #ff00ff;
+  border-style: double;
+  transform: rotate(-1deg);
+  box-shadow: 10px 10px 0 #000000;
+}
+
+.results-container h2 {
+  color: #ff00cc !important;
+  text-decoration: underline wavy #ff0000;
+  animation: bounce 2s infinite;
+}
+
+.results-score {
+  font-size: 1.5rem !important;
+  letter-spacing: 2px;
+}
+
+.results-score span {
+  text-decoration: underline double #ff00ff;
+}
+
+.action-button {
+  margin-top: 15px !important;
+  border: 3px solid #000000 !important;
+  font-weight: bold !important;
+  box-shadow: 5px 5px 0 #000000;
+  transform: rotate(-2deg);
+}
+
+.action-button:nth-child(1) {
+  background-color: #ff88ee !important;
+  transform: rotate(-3deg);
+}
+
+.action-button:nth-child(2) {
+  background-color: #88ff88 !important;
+  transform: rotate(2deg);
+}
+
+.action-button:nth-child(3) {
+  background-color: #88eeff !important;
+  transform: rotate(-1deg);
+}
+
+/* Statistics Page Styles */
+.stats-container {
+  background-color: #ddffff !important;
+  border: 5px dotted #ff00ff;
+  transform: rotate(-1deg);
+  box-shadow: 10px 10px 0 #000000;
+}
+
+.stats-container h2 {
+  text-decoration: underline wavy #ff0000;
+  color: #ff00cc !important;
+  transform: rotate(1deg);
+  letter-spacing: 2px;
+}
+
+.stats-card {
+  border: 3px solid #000000 !important;
+  box-shadow: 5px 5px 0 #000000;
+}
+
+.stats-card:nth-child(1) {
+  transform: rotate(-2deg);
+}
+
+.stats-card:nth-child(2) {
+  transform: rotate(1deg);
+}
+
+.stats-card:nth-child(3) {
+  transform: rotate(-1deg);
+}
+
+.stats-value {
+  font-family: "Impact", fantasy !important;
+  letter-spacing: 1px;
+}
+
+/* Table Styles */
+table {
+  border: 3px solid #000000 !important;
+  border-collapse: separate !important;
+  border-spacing: 2px !important;
+}
+
+thead tr {
+  background: repeating-linear-gradient(45deg, #ff88ff, #ff88ff 10px, #ffff88 10px, #ffff88 20px) !important;
+  letter-spacing: 1px;
+  font-weight: bold !important;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #ffddff !important;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #ddffff !important;
+}
+
+td, th {
+  border: 2px solid #000000 !important;
+  padding: 10px !important;
+}
+
+/* Footer Styles */
+footer {
+  background: repeating-linear-gradient(-45deg, #ff88ff, #ff88ff 10px, #88ffff 10px, #88ffff 20px) !important;
+  border-top: 5px dotted #00ff00;
+  transform: skew(2deg);
+  font-weight: bold !important;
+  text-shadow: 1px 1px 0 #ffffff;
+  padding: 15px !important;
+  margin-top: 30px;
+}
+
+/* Animations */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes tada {
+  0% { transform: scale(1) rotate(0); }
+  10%, 20% { transform: scale(0.9) rotate(-3deg); }
+  30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+  40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Scroll bar styling */
+::-webkit-scrollbar {
+  width: 15px;
+  height: 15px;
+}
+
+::-webkit-scrollbar-track {
+  background: repeating-linear-gradient(45deg, #ff88ff, #ff88ff 10px, #88ffff 10px, #88ffff 20px);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff00ff;
+  border: 3px solid #000000;
+}
+
+/* Selection style */
+::selection {
+  background-color: #ff00ff;
+  color: #ffff00;
+}
