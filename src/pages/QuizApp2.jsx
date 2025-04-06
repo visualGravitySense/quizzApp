@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Info, Settings, TrendingUp, ChevronRight, Award, Home, RefreshCw, Coins, AlertTriangle, Zap } from 'lucide-react';
+import { Info, Settings, TrendingUp, ChevronRight, Award, Home, RefreshCw } from 'lucide-react';
+// import '../designSystem.css'
 
 // Main App Component
 const QuizApp = () => {
@@ -12,13 +13,6 @@ const QuizApp = () => {
   const [quizHistory, setQuizHistory] = useState([]);
   const [timer, setTimer] = useState(20);
   const [timerActive, setTimerActive] = useState(false);
-  
-  // New gambling features
-  const [currentBet, setCurrentBet] = useState(10);
-  const [streak, setStreak] = useState(0);
-  const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(false);
-  const [eliminatedOptions, setEliminatedOptions] = useState([]);
-  const [totalBankroll, setTotalBankroll] = useState(100); // Starting bankroll
 
   // Sample quiz questions
   const questions = [
@@ -66,39 +60,6 @@ const QuizApp = () => {
     setGameOver(false);
     setTimer(20);
     setTimerActive(true);
-    setStreak(0);
-    setCurrentBet(10);
-    setFiftyFiftyUsed(false);
-    setEliminatedOptions([]);
-    setTotalBankroll(100); // Reset bankroll
-  };
-
-  // Handle bet change
-  const handleBetChange = (amount) => {
-    // Ensure bet is not less than 5 or more than the total bankroll
-    const newBet = Math.min(Math.max(5, currentBet + amount), totalBankroll);
-    setCurrentBet(newBet);
-  };
-
-  // Use 50/50 lifeline
-  const useFiftyFifty = () => {
-    if (fiftyFiftyUsed || answered) return;
-    
-    const currentQuestion = questions[currentQuestionIndex];
-    const correctAnswer = currentQuestion.correctAnswer;
-    
-    // Get incorrect options
-    const incorrectOptions = currentQuestion.options.filter(option => option !== correctAnswer);
-    
-    // Randomly select two incorrect options to eliminate
-    const shuffled = incorrectOptions.sort(() => 0.5 - Math.random());
-    const toEliminate = shuffled.slice(0, Math.min(2, incorrectOptions.length));
-    
-    setEliminatedOptions(toEliminate);
-    setFiftyFiftyUsed(true);
-    
-    // Cost of using 50/50
-    setTotalBankroll(totalBankroll - 10);
   };
 
   // Handle answer selection
@@ -110,18 +71,7 @@ const QuizApp = () => {
     setTimerActive(false);
     
     if (option === questions[currentQuestionIndex].correctAnswer) {
-      // Correct answer - add bet to score
-      // Increase bet by streak factor (20% per streak)
-      const streakBonus = streak > 0 ? (streak * 0.2) : 0;
-      const winAmount = Math.round(currentBet * (1 + streakBonus));
-      
-      setScore(score + winAmount);
-      setTotalBankroll(totalBankroll + winAmount);
-      setStreak(streak + 1);
-    } else {
-      // Wrong answer - lose bet
-      setTotalBankroll(totalBankroll - currentBet);
-      setStreak(0);
+      setScore(score + 1);
     }
   };
 
@@ -133,7 +83,6 @@ const QuizApp = () => {
       setAnswered(false);
       setTimer(20);
       setTimerActive(true);
-      setEliminatedOptions([]);
     } else {
       endGame();
     }
@@ -146,10 +95,9 @@ const QuizApp = () => {
     
     const newQuizResult = {
       date: new Date().toLocaleDateString(),
-      score: totalBankroll, // Use bankroll as final score
-      initialBankroll: 100,
+      score: score,
       totalQuestions: questions.length,
-      percentage: Math.round((totalBankroll / 100 - 1) * 100) // Percentage gain/loss
+      percentage: Math.round((score / questions.length) * 100)
     };
     
     setQuizHistory([...quizHistory, newQuizResult]);
@@ -166,12 +114,9 @@ const QuizApp = () => {
     } else if (timer === 0 && timerActive) {
       setAnswered(true);
       setTimerActive(false);
-      // Lose bet if time runs out
-      setTotalBankroll(totalBankroll - currentBet);
-      setStreak(0);
     }
     return () => clearInterval(interval);
-  }, [timer, timerActive, totalBankroll, currentBet]);
+  }, [timer, timerActive]);
 
   // Load quiz history from localStorage
   useEffect(() => {
@@ -209,13 +154,6 @@ const QuizApp = () => {
             resetGame={resetGame}
             navigateTo={navigateTo}
             timer={timer}
-            currentBet={currentBet}
-            handleBetChange={handleBetChange}
-            streak={streak}
-            useFiftyFifty={useFiftyFifty}
-            fiftyFiftyUsed={fiftyFiftyUsed}
-            eliminatedOptions={eliminatedOptions}
-            totalBankroll={totalBankroll}
           />
         );
       case 'statistics':
@@ -271,7 +209,7 @@ const HomePage = ({ navigateTo }) => {
         </div>
         <h2 className="text-3xl font-bold mb-4 text-gray-800">Welcome to QuizMaster!</h2>
         <p className="text-lg mb-6">
-          Test your knowledge with our interactive quizzes. Challenge yourself, place bets, and increase your bankroll!
+          Test your knowledge with our interactive quizzes. Challenge yourself and track your progress!
         </p>
         <button
           onClick={() => navigateTo('game')}
@@ -288,16 +226,16 @@ const HomePage = ({ navigateTo }) => {
           </div>
           <h3 className="text-xl font-bold mb-2">How to Play</h3>
           <p>
-            Answer questions within the time limit. Place bets on your answers and build up your bankroll. Use the 50/50 lifeline for hard questions!
+            Answer questions within the time limit. Each correct answer earns you points. Try to get the highest score!
           </p>
         </div>
         <div className="feature-card rounded-lg shadow p-6">
           <div className="text-3xl mb-3 text-blue-500 flex justify-center">
-            <Coins />
+            <Settings />
           </div>
-          <h3 className="text-xl font-bold mb-2">Betting System</h3>
+          <h3 className="text-xl font-bold mb-2">Features</h3>
           <p>
-            Increase your bet size with consecutive correct answers. The longer your streak, the higher your potential winnings!
+            Multiple topics, timed questions, and detailed statistics to track your improvement over time.
           </p>
         </div>
       </div>
@@ -318,27 +256,18 @@ const GamePage = ({
   gameOver,
   resetGame,
   navigateTo,
-  timer,
-  currentBet,
-  handleBetChange,
-  streak,
-  useFiftyFifty,
-  fiftyFiftyUsed,
-  eliminatedOptions,
-  totalBankroll
+  timer
 }) => {
   if (gameOver) {
     return (
       <div className="results-container max-w-md mx-auto rounded-lg shadow-lg p-8 text-center">
         <div className="text-6xl mb-6 text-blue-500 flex justify-center">
-          <Coins />
+          <Award />
         </div>
         <h2 className="text-2xl font-bold mb-4">Quiz Completed!</h2>
-        <p className="results-score mb-2">Final Bankroll: <span className="font-bold">{totalBankroll} points</span></p>
+        <p className="results-score mb-2">Your Score: <span className="font-bold">{score}/{totalQuestions}</span></p>
         <p className="results-score mb-6">
-          Gain/Loss: <span className={`font-bold ${totalBankroll > 100 ? 'text-green-600' : 'text-red-600'}`}>
-            {totalBankroll > 100 ? '+' : ''}{totalBankroll - 100} points ({Math.round((totalBankroll / 100 - 1) * 100)}%)
-          </span>
+          Percentage: <span className="font-bold">{Math.round((score / totalQuestions) * 100)}%</span>
         </p>
         <div className="flex flex-col space-y-3">
           <button
@@ -367,14 +296,13 @@ const GamePage = ({
   return (
     <div className="max-w-2xl mx-auto">
       <div className="game-container rounded-lg shadow-lg p-6">
-        {/* Status Bar */}
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-6">
           <div className="question-indicator px-4 py-2 rounded-lg">
             Question {questionNumber}/{totalQuestions}
           </div>
           <div className="flex items-center">
-            <div className="bankroll-indicator px-4 py-2 rounded-lg mr-3 bg-yellow-100 text-yellow-800">
-              <Coins size={16} className="inline mr-1" /> {totalBankroll}
+            <div className="score-indicator px-4 py-2 rounded-lg mr-3">
+              Score: {score}
             </div>
             <div className={`timer-indicator px-4 py-2 rounded-lg ${
               timer > 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -384,89 +312,36 @@ const GamePage = ({
           </div>
         </div>
         
-        {/* Streak Indicator */}
-        {streak > 0 && (
-          <div className="streak-indicator px-4 py-2 rounded-lg mb-4 bg-purple-100 text-purple-800 text-center">
-            <Zap size={16} className="inline mr-1" /> Streak: {streak} - Bonus: +{streak * 20}%
-          </div>
-        )}
-        
-        {/* Betting Controls */}
-        <div className="betting-controls mb-4 p-4 rounded-lg bg-gray-50">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-bold">Your Bet</h3>
-            <div className="flex items-center">
-              <button 
-                onClick={() => handleBetChange(-5)} 
-                className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300"
-                disabled={answered || currentBet <= 5}
-              >
-                -
-              </button>
-              <span className="mx-3 font-bold">{currentBet}</span>
-              <button 
-                onClick={() => handleBetChange(5)} 
-                className="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300"
-                disabled={answered || currentBet >= totalBankroll}
-              >
-                +
-              </button>
-            </div>
-          </div>
-          
-          {/* 50/50 Lifeline */}
-          <div className="text-center mt-2">
-            <button 
-              onClick={useFiftyFifty}
-              disabled={fiftyFiftyUsed || answered || totalBankroll < 10}
-              className={`px-4 py-1 rounded-lg text-white flex items-center mx-auto ${
-                fiftyFiftyUsed ? 'bg-gray-400' : 'bg-orange-500 hover:bg-orange-600'
-              }`}
-            >
-              <AlertTriangle size={16} className="mr-1" /> 
-              50/50 Help (-10 points)
-            </button>
-          </div>
-        </div>
-        
         <h2 className="question-text">{question.question}</h2>
         
         <div className="space-y-3 mb-6">
-          {question.options.map((option, index) => {
-            const isEliminated = eliminatedOptions.includes(option);
-            
-            return (
-              <button
-                key={index}
-                onClick={() => handleOptionSelect(option)}
-                disabled={answered || isEliminated}
-                className={`option-button w-full rounded-lg text-left transition ${
-                  isEliminated ? 'opacity-30 cursor-not-allowed' : ''
-                } ${
-                  !answered
-                    ? ''
-                    : option === question.correctAnswer
-                      ? 'correct-answer'
-                      : option === selectedOption
-                        ? 'wrong-answer'
-                        : ''
-                }`}
-              >
-                {option}
-              </button>
-            );
-          })}
+          {question.options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => handleOptionSelect(option)}
+              disabled={answered}
+              className={`option-button w-full rounded-lg text-left transition ${
+                !answered
+                  ? ''
+                  : option === question.correctAnswer
+                    ? 'correct-answer'
+                    : option === selectedOption
+                      ? 'wrong-answer'
+                      : ''
+              }`}
+            >
+              {option}
+            </button>
+          ))}
         </div>
         
         {answered && (
           <div className="mt-4 text-center">
             {selectedOption === question.correctAnswer ? (
-              <p className="feedback-text text-green-600 font-medium mb-4">
-                Correct! +{Math.round(currentBet * (1 + (streak - 1) * 0.2))} points!
-              </p>
+              <p className="feedback-text text-green-600 font-medium mb-4">Correct! Well done!</p>
             ) : (
               <p className="feedback-text text-red-600 font-medium mb-4">
-                Incorrect. The correct answer is {question.correctAnswer}. -{currentBet} points.
+                Incorrect. The correct answer is {question.correctAnswer}.
               </p>
             )}
             <button
@@ -484,74 +359,69 @@ const GamePage = ({
 
 // Statistics Page Component
 const StatisticsPage = ({ quizHistory, navigateTo }) => {
-  const calculateAverageGain = () => {
+  const calculateAverage = () => {
     if (quizHistory.length === 0) return 0;
-    const totalGain = quizHistory.reduce((sum, quiz) => sum + (quiz.score - quiz.initialBankroll || 0), 0);
-    return Math.round(totalGain / quizHistory.length);
+    const total = quizHistory.reduce((sum, quiz) => sum + quiz.percentage, 0);
+    return Math.round(total / quizHistory.length);
   };
 
   const getBestScore = () => {
     if (quizHistory.length === 0) return 0;
-    return Math.max(...quizHistory.map(quiz => quiz.score || 0));
+    return Math.max(...quizHistory.map(quiz => quiz.percentage));
   };
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="stats-container rounded-lg shadow-lg p-6 mb-6">
-        <h2 className="text-2xl font-bold mb-6 text-center">Your Gambling Statistics</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Your Quiz Statistics</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="stats-card bg-blue-50 rounded-lg p-4 text-center">
-            <p className="text-gray-600 mb-1">Total Games</p>
+            <p className="text-gray-600 mb-1">Total Quizzes</p>
             <p className="stats-value text-3xl font-bold text-blue-600">{quizHistory.length}</p>
           </div>
           <div className="stats-card bg-green-50 rounded-lg p-4 text-center">
-            <p className="text-gray-600 mb-1">Avg. Gain/Loss</p>
-            <p className={`stats-value text-3xl font-bold ${calculateAverageGain() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {calculateAverageGain() >= 0 ? '+' : ''}{calculateAverageGain()}
-            </p>
+            <p className="text-gray-600 mb-1">Average Score</p>
+            <p className="stats-value text-3xl font-bold text-green-600">{calculateAverage()}%</p>
           </div>
           <div className="stats-card bg-purple-50 rounded-lg p-4 text-center">
-            <p className="text-gray-600 mb-1">Best Bankroll</p>
-            <p className="stats-value text-3xl font-bold text-purple-600">{getBestScore()}</p>
+            <p className="text-gray-600 mb-1">Best Score</p>
+            <p className="stats-value text-3xl font-bold text-purple-600">{getBestScore()}%</p>
           </div>
         </div>
         
-        <h3 className="text-xl font-bold mb-4">Game History</h3>
+        <h3 className="text-xl font-bold mb-4">Quiz History</h3>
         {quizHistory.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr>
                   <th className="p-3 text-left">Date</th>
-                  <th className="p-3 text-left">Final Score</th>
-                  <th className="p-3 text-left">Gain/Loss</th>
+                  <th className="p-3 text-left">Score</th>
+                  <th className="p-3 text-left">Percentage</th>
                 </tr>
               </thead>
               <tbody>
-                {quizHistory.slice().reverse().map((quiz, index) => {
-                  const gainLoss = quiz.score - (quiz.initialBankroll || 100);
-                  return (
-                    <tr key={index}>
-                      <td className="p-3">{quiz.date}</td>
-                      <td className="p-3">{quiz.score}</td>
-                      <td className="p-3">
-                        <span className={`px-2 py-1 rounded ${
-                          gainLoss > 0 ? 'bg-green-100 text-green-800' : 
-                          gainLoss === 0 ? 'bg-gray-100 text-gray-800' : 
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {gainLoss > 0 ? '+' : ''}{gainLoss} ({Math.round((gainLoss / (quiz.initialBankroll || 100)) * 100)}%)
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {quizHistory.slice().reverse().map((quiz, index) => (
+                  <tr key={index}>
+                    <td className="p-3">{quiz.date}</td>
+                    <td className="p-3">{quiz.score}/{quiz.totalQuestions}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded ${
+                        quiz.percentage >= 70 ? 'bg-green-100 text-green-800' : 
+                        quiz.percentage >= 40 ? 'bg-yellow-100 text-yellow-800' : 
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {quiz.percentage}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-gray-500 text-center py-4">No game history yet. Take a quiz to see your statistics!</p>
+          <p className="text-gray-500 text-center py-4">No quiz history yet. Take a quiz to see your statistics!</p>
         )}
         
         <div className="mt-6 text-center">
@@ -559,7 +429,7 @@ const StatisticsPage = ({ quizHistory, navigateTo }) => {
             onClick={() => navigateTo('game')}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700"
           >
-            Play Again
+            Take a New Quiz
           </button>
         </div>
       </div>
@@ -567,4 +437,4 @@ const StatisticsPage = ({ quizHistory, navigateTo }) => {
   );
 };
 
-export default QuizApp;
+export default QuizApp; 
