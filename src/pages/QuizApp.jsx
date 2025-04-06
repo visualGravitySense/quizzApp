@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Info, Settings, TrendingUp, ChevronRight, Award, Home, RefreshCw } from 'lucide-react';
+// import '../designSystem.css'
 
 // Main App Component
 const QuizApp = () => {
