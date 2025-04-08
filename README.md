@@ -212,7 +212,7 @@ npm run build
 
 <div align="center">
   
-## 📜 **LICENSE** 📜
+
 
 MIT © 2025 QuizMaster Neon
 
