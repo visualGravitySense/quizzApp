@@ -30,6 +30,13 @@ const QuizApp = () => {
   const [highestStreak, setHighestStreak] = useState(0);
   const [totalCorrectAnswers, setTotalCorrectAnswers] = useState(0);
   const [totalQuizzesCompleted, setTotalQuizzesCompleted] = useState(0);
+  
+  // New bonus system features
+  const [activeBonuses, setActiveBonuses] = useState([]);
+  const [bonusHistory, setBonusHistory] = useState([]);
+  const [bonusMultiplier, setBonusMultiplier] = useState(1);
+  const [bonusStreak, setBonusStreak] = useState(0);
+  const [bonusPoints, setBonusPoints] = useState(0);
 
   // Sample quiz questions
   const questions = [
@@ -82,6 +89,10 @@ const QuizApp = () => {
     setFiftyFiftyUsed(false);
     setEliminatedOptions([]);
     setTotalBankroll(100); // Reset bankroll
+    setActiveBonuses([]);
+    setBonusMultiplier(1);
+    setBonusStreak(0);
+    setBonusPoints(0);
   };
 
   // Calculate experience needed for next level
@@ -277,6 +288,84 @@ const QuizApp = () => {
     setTotalBankroll(totalBankroll - 10);
   };
 
+  // Generate random bonus
+  const generateRandomBonus = () => {
+    const bonusTypes = [
+      { id: 'double_points', name: 'Double Points', description: 'Earn double points for your next correct answer', multiplier: 2, duration: 1 },
+      { id: 'triple_points', name: 'Triple Points', description: 'Earn triple points for your next correct answer', multiplier: 3, duration: 1 },
+      { id: 'extra_time', name: 'Extra Time', description: 'Get 10 extra seconds on your next question', duration: 1 },
+      { id: 'free_bet', name: 'Free Bet', description: 'Your next bet is free (no risk of losing points)', duration: 1 },
+      { id: 'streak_boost', name: 'Streak Boost', description: 'Your streak bonus is doubled for the next 3 questions', multiplier: 2, duration: 3 }
+    ];
+    
+    // 20% chance to get a bonus
+    if (Math.random() < 0.2) {
+      const randomBonus = bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
+      return randomBonus;
+    }
+    
+    return null;
+  };
+
+  // Apply bonus effects
+  const applyBonusEffects = (bonus) => {
+    if (!bonus) return;
+    
+    // Add bonus to active bonuses
+    setActiveBonuses([...activeBonuses, { ...bonus, applied: false }]);
+    
+    // Update bonus history
+    setBonusHistory([...bonusHistory, { ...bonus, date: new Date().toLocaleDateString() }]);
+    
+    // Save bonus history to localStorage
+    localStorage.setItem('bonusHistory', JSON.stringify([...bonusHistory, { ...bonus, date: new Date().toLocaleDateString() }]));
+    
+    // Show bonus notification
+    showBonusNotification(bonus);
+  };
+
+  // Show bonus notification
+  const showBonusNotification = (bonus) => {
+    // This would be implemented with a toast notification in a real app
+    // For now, we'll just log it
+    console.log(`Bonus earned: ${bonus.name} - ${bonus.description}`);
+  };
+
+  // Process active bonuses
+  const processActiveBonuses = () => {
+    let newMultiplier = 1;
+    let newTimer = timer;
+    let freeBet = false;
+    
+    // Process each active bonus
+    const updatedBonuses = activeBonuses.map(bonus => {
+      if (bonus.applied) {
+        // Decrease duration for applied bonuses
+        return { ...bonus, duration: bonus.duration - 1 };
+      } else {
+        // Apply new bonuses
+        if (bonus.id === 'double_points' || bonus.id === 'triple_points') {
+          newMultiplier = bonus.multiplier;
+        } else if (bonus.id === 'extra_time') {
+          newTimer = timer + 10;
+        } else if (bonus.id === 'free_bet') {
+          freeBet = true;
+        } else if (bonus.id === 'streak_boost') {
+          // This will be applied when calculating streak bonus
+        }
+        
+        return { ...bonus, applied: true };
+      }
+    }).filter(bonus => bonus.duration > 0); // Remove expired bonuses
+    
+    // Update state
+    setActiveBonuses(updatedBonuses);
+    setBonusMultiplier(newMultiplier);
+    setTimer(newTimer);
+    
+    return { multiplier: newMultiplier, freeBet };
+  };
+
   // Handle answer selection
   const handleOptionSelect = (option) => {
     if (answered) return;
@@ -285,15 +374,30 @@ const QuizApp = () => {
     setAnswered(true);
     setTimerActive(false);
     
+    // Process active bonuses
+    const bonusEffects = processActiveBonuses();
+    
     if (option === questions[currentQuestionIndex].correctAnswer) {
       // Correct answer - add bet to score
       // Increase bet by streak factor (20% per streak)
       const streakBonus = streak > 0 ? (streak * 0.2) : 0;
-      const winAmount = Math.round(currentBet * (1 + streakBonus));
+      const winAmount = Math.round(currentBet * (1 + streakBonus) * bonusEffects.multiplier);
       
       setScore(score + winAmount);
       setTotalBankroll(totalBankroll + winAmount);
       setStreak(streak + 1);
+      
+      // Update bonus streak
+      setBonusStreak(bonusStreak + 1);
+      
+      // Check for bonus streak rewards
+      if (bonusStreak + 1 >= 3) {
+        const streakBonus = generateRandomBonus();
+        if (streakBonus) {
+          applyBonusEffects(streakBonus);
+        }
+        setBonusStreak(0);
+      }
       
       // Update correct answers count
       setTotalCorrectAnswers(totalCorrectAnswers + 1);
@@ -308,10 +412,21 @@ const QuizApp = () => {
       
       // Check achievements
       checkAchievements();
+      
+      // Generate random bonus (10% chance)
+      if (Math.random() < 0.1) {
+        const randomBonus = generateRandomBonus();
+        if (randomBonus) {
+          applyBonusEffects(randomBonus);
+        }
+      }
     } else {
-      // Wrong answer - lose bet
-      setTotalBankroll(totalBankroll - currentBet);
+      // Wrong answer - lose bet (unless free bet bonus is active)
+      if (!bonusEffects.freeBet) {
+        setTotalBankroll(totalBankroll - currentBet);
+      }
       setStreak(0);
+      setBonusStreak(0);
     }
   };
 
@@ -341,6 +456,14 @@ const QuizApp = () => {
       setTimer(20);
       setTimerActive(true);
       setEliminatedOptions([]);
+      
+      // Generate random bonus at the start of a new question (5% chance)
+      if (Math.random() < 0.05) {
+        const randomBonus = generateRandomBonus();
+        if (randomBonus) {
+          applyBonusEffects(randomBonus);
+        }
+      }
     } else {
       endGame();
     }
@@ -361,7 +484,8 @@ const QuizApp = () => {
       totalQuestions: questions.length,
       percentage: Math.round((totalBankroll / 100 - 1) * 100), // Percentage gain/loss
       level: userLevel,
-      experience: experiencePoints
+      experience: experiencePoints,
+      bonusesEarned: bonusHistory.length
     };
     
     setQuizHistory([...quizHistory, newQuizResult]);
@@ -416,6 +540,11 @@ const QuizApp = () => {
       setTotalQuizzesCompleted(userData.totalQuizzesCompleted || 0);
       setLevelProgress(calculateLevelProgress());
     }
+    
+    const savedBonusHistory = localStorage.getItem('bonusHistory');
+    if (savedBonusHistory) {
+      setBonusHistory(JSON.parse(savedBonusHistory));
+    }
   }, []);
 
   // Save user data to localStorage when it changes
@@ -468,6 +597,8 @@ const QuizApp = () => {
             totalBankroll={totalBankroll}
             userLevel={userLevel}
             levelProgress={levelProgress}
+            activeBonuses={activeBonuses}
+            bonusMultiplier={bonusMultiplier}
           />
         );
       case 'statistics':
@@ -476,6 +607,8 @@ const QuizApp = () => {
         return <AchievementsPage achievements={achievements} navigateTo={navigateTo} />;
       case 'rankings':
         return <RankingsPage rankings={rankings} navigateTo={navigateTo} />;
+      case 'bonuses':
+        return <BonusesPage bonusHistory={bonusHistory} navigateTo={navigateTo} />;
       default:
         return <HomePage navigateTo={navigateTo} userLevel={userLevel} levelProgress={levelProgress} />;
     }
@@ -512,6 +645,13 @@ const QuizApp = () => {
             style={{transition: 'all 0.3s ease'}}
           >
             <Trophy size={16} className="me-1" /> Achievements
+          </button>
+          <button 
+            onClick={() => navigateTo('bonuses')}
+            className={`btn d-flex align-items-center ${currentPage === 'bonuses' ? 'btn-info' : 'btn-outline-info'}`}
+            style={{transition: 'all 0.3s ease'}}
+          >
+            <Zap size={16} className="me-1" /> Bonuses
           </button>
           <button 
             onClick={() => navigateTo('rankings')}
@@ -635,7 +775,9 @@ const GamePage = ({
   eliminatedOptions,
   totalBankroll,
   userLevel,
-  levelProgress
+  levelProgress,
+  activeBonuses,
+  bonusMultiplier
 }) => {
   if (gameOver) {
     return (
@@ -726,10 +868,29 @@ const GamePage = ({
           </div>
         </div>
         
+        {/* Active Bonuses */}
+        {activeBonuses.length > 0 && (
+          <div className="bonus-indicator px-4 py-2 rounded-lg mb-4 bg-purple-100 text-purple-800 text-center">
+            <div className="flex items-center justify-center flex-wrap">
+              <Zap size={16} className="inline mr-1" /> Active Bonuses:
+              {activeBonuses.map((bonus, index) => (
+                <span key={index} className="mx-1 px-2 py-1 bg-purple-200 rounded-full text-xs">
+                  {bonus.name} ({bonus.duration} left)
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        
         {/* Streak Indicator */}
         {streak > 0 && (
           <div className="streak-indicator px-4 py-2 rounded-lg mb-4 bg-purple-100 text-purple-800 text-center">
             <Zap size={16} className="inline mr-1" /> Streak: {streak} - Bonus: +{streak * 20}%
+            {bonusMultiplier > 1 && (
+              <span className="ml-1 text-yellow-600">
+                (x{bonusMultiplier} multiplier active!)
+              </span>
+            )}
           </div>
         )}
         
@@ -804,7 +965,12 @@ const GamePage = ({
           <div className="mt-4 text-center">
             {selectedOption === question.correctAnswer ? (
               <p className="feedback-text text-green-600 font-medium mb-4">
-                Correct! +{Math.round(currentBet * (1 + (streak - 1) * 0.2))} points!
+                Correct! +{Math.round(currentBet * (1 + (streak - 1) * 0.2) * bonusMultiplier)} points!
+                {bonusMultiplier > 1 && (
+                  <span className="ml-1 text-yellow-600">
+                    (x{bonusMultiplier} multiplier applied!)
+                  </span>
+                )}
               </p>
             ) : (
               <p className="feedback-text text-red-600 font-medium mb-4">
@@ -1130,6 +1296,176 @@ const RankingsPage = ({ rankings, navigateTo }) => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => navigateTo('game')}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700"
+          >
+            Play Again
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Bonuses Page Component
+const BonusesPage = ({ bonusHistory, navigateTo }) => {
+  // Group bonuses by type
+  const groupedBonuses = {
+    double_points: bonusHistory.filter(b => b.id === 'double_points'),
+    triple_points: bonusHistory.filter(b => b.id === 'triple_points'),
+    extra_time: bonusHistory.filter(b => b.id === 'extra_time'),
+    free_bet: bonusHistory.filter(b => b.id === 'free_bet'),
+    streak_boost: bonusHistory.filter(b => b.id === 'streak_boost')
+  };
+
+  // Get icon component based on bonus id
+  const getBonusIcon = (id) => {
+    switch (id) {
+      case 'double_points':
+      case 'triple_points':
+        return <Coins size={24} className="text-yellow-500" />;
+      case 'extra_time':
+        return <RefreshCw size={24} className="text-blue-500" />;
+      case 'free_bet':
+        return <AlertTriangle size={24} className="text-green-500" />;
+      case 'streak_boost':
+        return <Zap size={24} className="text-purple-500" />;
+      default:
+        return <Award size={24} className="text-gray-500" />;
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="bonuses-container rounded-lg shadow-lg p-6 mb-6">
+        <h2 className="text-2xl font-bold mb-6 text-center">Your Bonus History</h2>
+        
+        {bonusHistory.length === 0 ? (
+          <div className="text-center py-8">
+            <Zap size={48} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-500">You haven't earned any bonuses yet. Keep playing to unlock them!</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Double Points Bonuses */}
+            {groupedBonuses.double_points.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold mb-3 flex items-center">
+                  <Coins size={20} className="mr-2 text-yellow-500" /> Double Points
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {groupedBonuses.double_points.map((bonus, index) => (
+                    <div key={index} className="bonus-card bg-yellow-50 rounded-lg p-4 flex items-center">
+                      <div className="bonus-icon mr-4">
+                        {getBonusIcon(bonus.id)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{bonus.name}</h4>
+                        <p className="text-sm text-gray-600">{bonus.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">Earned: {bonus.date}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Triple Points Bonuses */}
+            {groupedBonuses.triple_points.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold mb-3 flex items-center">
+                  <Coins size={20} className="mr-2 text-yellow-500" /> Triple Points
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {groupedBonuses.triple_points.map((bonus, index) => (
+                    <div key={index} className="bonus-card bg-yellow-50 rounded-lg p-4 flex items-center">
+                      <div className="bonus-icon mr-4">
+                        {getBonusIcon(bonus.id)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{bonus.name}</h4>
+                        <p className="text-sm text-gray-600">{bonus.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">Earned: {bonus.date}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Extra Time Bonuses */}
+            {groupedBonuses.extra_time.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold mb-3 flex items-center">
+                  <RefreshCw size={20} className="mr-2 text-blue-500" /> Extra Time
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {groupedBonuses.extra_time.map((bonus, index) => (
+                    <div key={index} className="bonus-card bg-blue-50 rounded-lg p-4 flex items-center">
+                      <div className="bonus-icon mr-4">
+                        {getBonusIcon(bonus.id)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{bonus.name}</h4>
+                        <p className="text-sm text-gray-600">{bonus.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">Earned: {bonus.date}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Free Bet Bonuses */}
+            {groupedBonuses.free_bet.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold mb-3 flex items-center">
+                  <AlertTriangle size={20} className="mr-2 text-green-500" /> Free Bet
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {groupedBonuses.free_bet.map((bonus, index) => (
+                    <div key={index} className="bonus-card bg-green-50 rounded-lg p-4 flex items-center">
+                      <div className="bonus-icon mr-4">
+                        {getBonusIcon(bonus.id)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{bonus.name}</h4>
+                        <p className="text-sm text-gray-600">{bonus.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">Earned: {bonus.date}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Streak Boost Bonuses */}
+            {groupedBonuses.streak_boost.length > 0 && (
+              <div>
+                <h3 className="text-xl font-bold mb-3 flex items-center">
+                  <Zap size={20} className="mr-2 text-purple-500" /> Streak Boost
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {groupedBonuses.streak_boost.map((bonus, index) => (
+                    <div key={index} className="bonus-card bg-purple-50 rounded-lg p-4 flex items-center">
+                      <div className="bonus-icon mr-4">
+                        {getBonusIcon(bonus.id)}
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{bonus.name}</h4>
+                        <p className="text-sm text-gray-600">{bonus.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">Earned: {bonus.date}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
         
