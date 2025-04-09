@@ -1035,3 +1035,71 @@ The implementation follows a progression system where:
 5. Rankings are updated based on total experience
 
 This system provides users with clear goals to work toward and rewards for their progress, which should increase engagement and retention in the quiz application.
+
+
+---
+
+
+I'll implement a bonus system that rewards users for correct answers and sequences of correct answers. Let's enhance the existing code to include this feature.
+
+First, I'll fix the linter error about the unused 'score' parameter, and then implement the bonus system.
+
+I've successfully implemented a comprehensive bonus system for the quiz application! Let me explain the new features I've added:
+
+### Bonus System Features
+
+1. **Five Types of Bonuses**:
+   - **Double Points**: Earn double points for your next correct answer
+   - **Triple Points**: Earn triple points for your next correct answer
+   - **Extra Time**: Get 10 extra seconds on your next question
+   - **Free Bet**: Your next bet is free (no risk of losing points)
+   - **Streak Boost**: Your streak bonus is doubled for the next 3 questions
+
+2. **Multiple Ways to Earn Bonuses**:
+   - **Random Chance**: 10% chance after a correct answer
+   - **Question Start**: 5% chance at the beginning of each question
+   - **Streak Rewards**: Earn a bonus after 3 consecutive correct answers
+
+3. **Bonus Management**:
+   - Bonuses have a duration (number of questions they remain active)
+   - Active bonuses are displayed during gameplay
+   - Bonus history is saved and can be viewed on a dedicated page
+
+4. **Visual Feedback**:
+   - Active bonuses are shown with their remaining duration
+   - When a bonus is applied, it's clearly indicated in the UI
+   - Multiplier effects are highlighted when active
+
+5. **New Bonuses Page**:
+   - Dedicated page to view all bonuses earned
+   - Bonuses are grouped by type for easy browsing
+   - Each bonus shows when it was earned
+
+### Technical Implementation
+
+1. **New State Variables**:
+   - `activeBonuses`: Tracks currently active bonuses
+   - `bonusHistory`: Records all bonuses earned
+   - `bonusMultiplier`: Applies to point calculations
+   - `bonusStreak`: Tracks consecutive correct answers for bonus rewards
+   - `bonusPoints`: Tracks points earned from bonuses (currently unused, can be fixed in a future update)
+
+2. **New Functions**:
+   - `generateRandomBonus()`: Creates random bonuses with different effects
+   - `applyBonusEffects()`: Applies bonus effects and updates history
+   - `processActiveBonuses()`: Manages active bonuses and their durations
+   - `showBonusNotification()`: Provides feedback when bonuses are earned
+
+3. **Integration with Existing Game Logic**:
+   - Bonuses affect point calculations
+   - Free bet bonus prevents losing points on wrong answers
+   - Extra time bonus adds seconds to the timer
+   - Streak boost doubles the streak bonus multiplier
+
+4. **Data Persistence**:
+   - Bonus history is saved to localStorage
+   - Bonus information is included in quiz results
+
+The bonus system adds an exciting layer of unpredictability and reward to the quiz game, encouraging players to maintain streaks and take risks for potentially higher rewards. The system is fully integrated with the existing game mechanics and provides clear visual feedback when bonuses are active.
+
+There is one minor linter warning about the unused `bonusPoints` variable, but this could be used in future enhancements to track and display bonus-specific points separately from regular points.
