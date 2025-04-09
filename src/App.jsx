@@ -5,6 +5,7 @@ import './App.css'
 
 import Home from './pages/Home'
 import QuizApp from './pages/QuizApp'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -35,6 +36,8 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+
+      <Dashboard />
     </>
   )
 }

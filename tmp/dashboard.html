@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Textile Waste Analytics Dashboard</title>
+  <style>
+    :root {
+      --primary: #2c6ecb;
+      --primary-light: #edf2fc;
+      --success: #34c759;
+      --warning: #ff9500;
+      --danger: #ff3b30;
+      --dark: #333333;
+      --medium: #636366;
+      --light: #aeaeb2;
+      --lighter: #f2f2f7;
+      --white: #ffffff;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f7f8fc;
+      color: var(--dark);
+    }
+    
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    /* Header styles */
+    header {
+      background-color: var(--white);
+      padding: 0.75rem 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .logo {
+      width: 40px;
+      height: 40px;
+      background-color: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+    }
+    
+    .logo-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .nav-tabs {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    
+    .nav-tab {
+      padding: 0.5rem 0;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--medium);
+      position: relative;
+    }
+    
+    .nav-tab.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .nav-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--primary);
+      border-radius: 2px 2px 0 0;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .period-selector {
+      background-color: var(--lighter);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--medium);
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    /* Main content */
+    .main-content {
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .card {
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .card-action {
+      background: none;
+      border: none;
+      color: var(--medium);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    /* Summary cards */
+    .summary-metrics {
+      grid-column: span 4;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    
+    .metric-card {
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 1.25rem;
+    }
+    
+    .metric-title {
+      font-size: 0.9rem;
+      color: var(--medium);
+      margin-bottom: 0.5rem;
+    }
+    
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .metric-trend {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.85rem;
+    }
+    
+    .trend-up {
+      color: var(--danger);
+    }
+    
+    .trend-down {
+      color: var(--success);
+    }
+    
+    /* Waste by category */
+    .waste-by-category {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    
+    .chart-container {
+      height: 280px;
+      position: relative;
+    }
+    
+    .donut-chart {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    .donut-center {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .donut-value {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+    
+    .donut-label {
+      font-size: 0.9rem;
+      color: var(--medium);
+    }
+    
+    .categories-legend {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 4px;
+    }
+    
+    /* Waste trend */
+    .waste-trend {
+      grid-column: span 2;
+    }
+    
+    /* Facility comparison */
+    .facility-comparison {
+      grid-column: span 2;
+    }
+    
+    .bars-container {
+      height: 220px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      gap: 1rem;
+      padding-top: 1rem;
+    }
+    
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 70px;
+    }
+    
+    .bar {
+      width: 100%;
+      background-color: var(--primary);
+      border-radius: 6px 6px 0 0;
+      transition: height 0.3s ease;
+    }
+    
+    .bar-label {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      text-align: center;
+      color: var(--medium);
+    }
+    
+    /* Reduction progress */
+    .reduction-progress {
+      grid-column: span 2;
+    }
+    
+    .gauge-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 180px;
+      position: relative;
+    }
+    
+    .gauge {
+      width: 220px;
+      height: 110px;
+      background-color: var(--lighter);
+      border-radius: 110px 110px 0 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .gauge-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: var(--primary);
+      border-radius: 0 0 110px 110px;
+    }
+    
+    .gauge-marker {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background-color: var(--dark);
+    }
+    
+    .gauge-value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 30%);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .progress-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .progress-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .progress-label {
+      font-size: 0.85rem;
+      color: var(--medium);
+      margin-bottom: 0.25rem;
+    }
+    
+    .progress-value {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    
+    /* Insights panel */
+    .insights-panel {
+      grid-column: span 2;
+    }
+    
+    .insight-item {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--lighter);
+    }
+    
+    .insight-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    
+    .insight-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .insight-info {
+      flex-grow: 1;
+    }
+    
+    .insight-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    .insight-desc {
+      font-size: 0.85rem;
+      color: var(--medium);
+    }
+    
+    .action-button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Header & Navigation -->
+    <header>
+      <div class="logo-container">
+        <div class="logo">TW</div>
+        <div class="logo-text">Textile Waste Analytics</div>
+      </div>
+      
+      <ul class="nav-tabs">
+        <li class="nav-tab active">Overview</li>
+        <li class="nav-tab">Waste Categories</li>
+        <li class="nav-tab">Facilities Comparison</li>
+        <li class="nav-tab">Reduction Targets</li>
+        <li class="nav-tab">Reports</li>
+      </ul>
+      
+      <div class="header-right">
+        <div class="period-selector">
+          Last 30 days ▼
+        </div>
+        <div class="user-profile">
+          <div class="avatar">JD</div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main Dashboard Content -->
+    <div class="main-content">
+      <!-- Summary Metrics -->
+      <div class="summary-metrics">
+        <div class="metric-card">
+          <div class="metric-title">Total Waste</div>
+          <div class="metric-value">5,842 kg</div>
+          <div class="metric-trend trend-down">↓ 8.2% from last period</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Waste per Unit</div>
+          <div class="metric-value">0.37 kg</div>
+          <div class="metric-trend trend-down">↓ 2.5% from last period</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Cost Impact</div>
+          <div class="metric-value">$21,576</div>
+          <div class="metric-trend trend-down">↓ 10.3% from last period</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Recovery Rate</div>
+          <div class="metric-value">42.8%</div>
+          <div class="metric-trend trend-up">↑ 5.1% from last period</div>
+        </div>
+      </div>
+      
+      <!-- Waste by Category -->
+      <div class="card waste-by-category">
+        <div class="card-header">
+          <div class="card-title">Waste by Category</div>
+          <div class="card-actions">
+            <button class="card-action">⋮</button>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <div class="donut-chart">
+            <!-- Placeholder for actual chart -->
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#E0E0E0" stroke-width="40" />
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#2c6ecb" stroke-width="40" stroke-dasharray="302 502" />
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#34c759" stroke-width="40" stroke-dasharray="151 502" transform="rotate(215 110 110)" />
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#ff9500" stroke-width="40" stroke-dasharray="100 502" transform="rotate(305 110 110)" />
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#ff3b30" stroke-width="40" stroke-dasharray="50 502" transform="rotate(365 110 110)" />
+              <circle cx="110" cy="110" r="80" fill="none" stroke="#8e8e93" stroke-width="40" stroke-dasharray="25 502" transform="rotate(395 110 110)" />
+              <!-- More segments would be added for real implementation -->
+            </svg>
+            <div class="donut-center">
+              <div class="donut-value">5,842</div>
+              <div class="donut-label">kg total</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="categories-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #2c6ecb;"></div>
+            <div>Fabric Scraps (48%)</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #34c759;"></div>
+            <div>Rejected Items (24%)</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #ff9500;"></div>
+            <div>End-of-Roll (16%)</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #ff3b30;"></div>
+            <div>Damaged Materials (8%)</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #8e8e93;"></div>
+            <div>Thread/Trim (4%)</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Waste Trend -->
+      <div class="card waste-trend">
+        <div class="card-header">
+          <div class="card-title">Waste Trend</div>
+          <div class="card-actions">
+            <button class="card-action">⋮</button>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <!-- Placeholder for line chart -->
+          <svg width="100%" height="100%" viewBox="0 0 500 220">
+            <path d="M50,180 L50,30 M50,180 L480,180" stroke="#e0e0e0" stroke-width="1" />
+            <!-- X-axis labels -->
+            <text x="80" y="200" font-size="10" text-anchor="middle" fill="#636366">Apr 10</text>
+            <text x="160" y="200" font-size="10" text-anchor="middle" fill="#636366">Apr 17</text>
+            <text x="240" y="200" font-size="10" text-anchor="middle" fill="#636366">Apr 24</text>
+            <text x="320" y="200" font-size="10" text-anchor="middle" fill="#636366">May 1</text>
+            <text x="400" y="200" font-size="10" text-anchor="middle" fill="#636366">May 8</text>
+            
+            <!-- Y-axis labels -->
+            <text x="40" y="180" font-size="10" text-anchor="end" fill="#636366">0</text>
+            <text x="40" y="140" font-size="10" text-anchor="end" fill="#636366">200</text>
+            <text x="40" y="100" font-size="10" text-anchor="end" fill="#636366">400</text>
+            <text x="40" y="60" font-size="10" text-anchor="end" fill="#636366">600</text>
+            
+            <!-- Grid lines -->
+            <line x1="50" y1="140" x2="480" y2="140" stroke="#f2f2f7" stroke-width="1" />
+            <line x1="50" y1="100" x2="480" y2="100" stroke="#f2f2f7" stroke-width="1" />
+            <line x1="50" y1="60" x2="480" y2="60" stroke="#f2f2f7" stroke-width="1" />
+            
+            <!-- Chart lines -->
+            <path d="M80,150 L160,140 L240,160 L320,120 L400,130" stroke="#2c6ecb" stroke-width="2" fill="none" />
+            <path d="M80,160 L160,130 L240,120 L320,140 L400,110" stroke="#34c759" stroke-width="2" fill="none" />
+            
+            <!-- Data points -->
+            <circle cx="80" cy="150" r="4" fill="#2c6ecb" />
+            <circle cx="160" cy="140" r="4" fill="#2c6ecb" />
+            <circle cx="240" cy="160" r="4" fill="#2c6ecb" />
+            <circle cx="320" cy="120" r="4" fill="#2c6ecb" />
+            <circle cx="400" cy="130" r="4" fill="#2c6ecb" />
+            
+            <circle cx="80" cy="160" r="4" fill="#34c759" />
+            <circle cx="160" cy="130" r="4" fill="#34c759" />
+            <circle cx="240" cy="120" r="4" fill="#34c759" />
+            <circle cx="320" cy="140" r="4" fill="#34c759" />
+            <circle cx="400" cy="110" r="4" fill="#34c759" />
+          </svg>
+        </div>
+        
+        <div class="categories-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #2c6ecb;"></div>
+            <div>Fabric Scraps</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #34c759;"></div>
+            <div>Rejected Items</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Facility Comparison -->
+      <div class="card facility-comparison">
+        <div class="card-header">
+          <div class="card-title">Facility Comparison</div>
+          <div class="card-actions">
+            <button class="card-action">⋮</button>
+          </div>
+        </div>
+        
+        <div class="bars-container">
+          <div class="bar-group">
+            <div class="bar" style="height: 180px; background-color: #2c6ecb;"></div>
+            <div class="bar-label">Shanghai</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height: 120px; background-color: #2c6ecb;"></div>
+            <div class="bar-label">Dhaka</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height: 90px; background-color: #2c6ecb;"></div>
+            <div class="bar-label">Istanbul</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height: 150px; background-color: #2c6ecb;"></div>
+            <div class="bar-label">Mexico City</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar" style="height: 60px; background-color: #2c6ecb;"></div>
+            <div class="bar-label">Milan</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Reduction Progress -->
+      <div class="card reduction-progress">
+        <div class="card-header">
+          <div class="card-title">Reduction Progress</div>
+          <div class="card-actions">
+            <button class="card-action">⋮</button>
+          </div>
+        </div>
+        
+        <div class="gauge-container">
+          <div class="gauge">
+            <div class="gauge-fill" style="height: 60%;"></div>
+            <div class="gauge-marker" style="height: 80px; left: 75%;"></div>
+          </div>
+          <div class="gauge-value">68%</div>
+        </div>
+        
+        <div class="progress-details">
+          <div class="progress-item">
+            <div class="progress-label">Current Reduction</div>
+            <div class="progress-value">17.3%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Target (2025)</div>
+            <div class="progress-value">25%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Industry Avg.</div>
+            <div class="progress-value">12.8%</div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">Best Practice</div>
+            <div class="progress-value">28.5%</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Insights Panel -->
+      <div class="card insights-panel">
+        <div class="card-header">
+          <div class="card-title">Actionable Insights</div>
+          <div class="card-actions">
+            <button class="card-action">⋮</button>
+          </div>
+        </div>
+        
+        <div class="insight-item">
+          <div class="insight-icon" style="background-color: #edf2fc; color: #2c6ecb;">↑</div>
+          <div class="insight-info">
+            <div class="insight-title">Pattern Efficiency Opportunity</div>
+            <div class="insight-desc">Shanghai facility showing 12% higher fabric waste than others. Review cutting patterns.</div>
+          </div>
+        </div>
+        
+        <div class="insight-item">
+          <div class="insight-icon" style="background-color: #ebf8ee; color: #34c759;">↓</div>
+          <div class="insight-info">
+            <div class="insight-title">Success: Rejected Items Reduction</div>
+            <div class="insight-desc">Quality control improvements reduced rejected garments by 8.2% this month.</div>
+          </div>
+        </div>
+        
+        <div class="insight-item">
+          <div class="insight-icon" style="background-color: #fff2eb; color: #ff9500;">!</div>
+          <div class="insight-info">
+            <div class="insight-title">End-of-Roll Optimization</div>
+            <div class="insight-desc">Consider smaller batch production for premium lines to reduce end-of-roll waste.</div>
+          </div>
+        </div>
+        
+        <button class="action-button">View All Insights</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
