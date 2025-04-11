@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Info, Settings, TrendingUp, ChevronRight, Award, Home, RefreshCw, Coins, AlertTriangle, Zap, Trophy, Star, Medal, Crown, Target, CheckCircle, XCircle } from 'lucide-react';
+import './Dashboard.css';
 
 // Main App Component
 const QuizApp = () => {
@@ -12,6 +13,7 @@ const QuizApp = () => {
   const [quizHistory, setQuizHistory] = useState([]);
   const [timer, setTimer] = useState(20);
   const [timerActive, setTimerActive] = useState(false);
+  const [period, setPeriod] = useState('This Month');
   
   // New gambling features
   const [currentBet, setCurrentBet] = useState(10);
@@ -618,7 +620,85 @@ const QuizApp = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: antiDesignStyles }} />
       <div className="quiz-app-container min-h-screen flex flex-col">
-      <header className="bg-dark text-white py-3" style={{boxShadow: '0 2px 5px rgba(0,0,0,0.2)'}}>
+
+{/* NEW HEADER */}
+
+
+<header>
+        <div className="logo-container">
+          <div className="logo">QM</div>
+          {/* <span className="logo-text">Quiz</span> */}
+        </div>
+        <nav>
+        
+        <button 
+            onClick={() => navigateTo('home')}
+            className={`btn d-flex align-items-center ${currentPage === 'home' ? 'btn-info' : 'btn-outline-info'}`}
+            style={{borderRadius: '20px 0 0 20px', transition: 'all 0.3s ease'}}
+          >
+            <Home size={16} className="me-1" /> Home
+          </button>
+          <button 
+            onClick={() => navigateTo('statistics')}
+            className={`btn d-flex align-items-center ${currentPage === 'statistics' ? 'btn-info' : 'btn-outline-info'}`}
+            style={{transition: 'all 0.3s ease'}}
+          >
+            <TrendingUp size={16} className="me-1" /> Stats
+          </button>
+          <button 
+            onClick={() => navigateTo('achievements')}
+            className={`btn d-flex align-items-center ${currentPage === 'achievements' ? 'btn-info' : 'btn-outline-info'}`}
+            style={{transition: 'all 0.3s ease'}}
+          >
+            <Trophy size={16} className="me-1" /> Achievements
+          </button>
+          <button 
+            onClick={() => navigateTo('bonuses')}
+            className={`btn d-flex align-items-center ${currentPage === 'bonuses' ? 'btn-info' : 'btn-outline-info'}`}
+            style={{transition: 'all 0.3s ease'}}
+          >
+            <Zap size={16} className="me-1" /> Bonuses
+          </button>
+          <button 
+            onClick={() => navigateTo('rankings')}
+            className={`btn d-flex align-items-center ${currentPage === 'rankings' ? 'btn-info' : 'btn-outline-info'}`}
+            style={{borderRadius: '0 20px 20px 0', transition: 'all 0.3s ease'}}
+          >
+            <Crown size={16} className="me-1" /> Rankings
+          </button>
+          </nav>
+
+        <div className="header-right">
+          <div className="period-selector">{period}</div>
+          <div className="user-profile">
+            <div className="avatar">QM</div>
+          </div>
+        </div>
+        <div className="level-indicator d-flex align-items-center">
+      <span className="me-2">Level {userLevel}</span>
+
+
+
+      {/* <div 
+          className="progress-bar bg-success" 
+          role="progressbar" 
+          style={{width: `${levelProgress}%`}} 
+          aria-valuenow={levelProgress} 
+          aria-valuemin="0" 
+          aria-valuemax="100"
+        ></div> */}
+
+      {/* <div className="progress" style={{width: '100px', height: '10px'}}>
+        
+      </div> */}
+
+    </div>
+      </header>
+
+
+
+{/* OLD HEADER */}
+      {/* <header className="bg-dark text-white py-3" style={{boxShadow: '0 2px 5px rgba(0,0,0,0.2)'}}>
   <div className="container d-flex justify-content-between align-items-center">
     <div className="d-flex align-items-center">
       
@@ -677,7 +757,7 @@ const QuizApp = () => {
       </div>
     </div>
   </div>
-</header>
+</header> */}
         
         <main className="flex-grow container mx-auto p-4">
           {renderPage()}
