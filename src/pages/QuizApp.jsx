@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Info, Settings, TrendingUp, ChevronRight, Award, Home, RefreshCw, Coins, AlertTriangle, Zap, Trophy, Star, Medal, Crown, Target, CheckCircle, XCircle } from 'lucide-react';
-import './Dashboard.css';
+import './Dashboard-test.css';
+// import './Dashboard.css';
+import { useQuizContext } from '../context/QuizContext';
 
 // Main App Component
 const QuizApp = () => {
+  const { updateQuizStats } = useQuizContext();
   const [currentPage, setCurrentPage] = useState('home');
   const [score, setScore] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -473,28 +476,31 @@ const QuizApp = () => {
 
   // End game and save results
   const endGame = () => {
+    const finalScore = score;
+    const finalBankroll = totalBankroll;
+    const initialBankroll = 100;
+    const gain = finalBankroll - initialBankroll;
+    
+    // Update quiz statistics in context
+    updateQuizStats({
+      score: finalScore,
+      bankroll: finalBankroll,
+      gain: gain,
+      questionsAnswered: currentQuestionIndex + 1,
+      correctAnswers: score
+    });
+
+    // Save to localStorage
+    const quizHistory = JSON.parse(localStorage.getItem('quizHistory') || '[]');
+    quizHistory.push({
+      date: new Date().toISOString(),
+      score: finalScore,
+      bankroll: finalBankroll,
+      gain: gain
+    });
+    localStorage.setItem('quizHistory', JSON.stringify(quizHistory));
+
     setGameOver(true);
-    setTimerActive(false);
-    
-    // Increment total quizzes completed
-    setTotalQuizzesCompleted(totalQuizzesCompleted + 1);
-    
-    const newQuizResult = {
-      date: new Date().toLocaleDateString(),
-      score: totalBankroll, // Use bankroll as final score
-      initialBankroll: 100,
-      totalQuestions: questions.length,
-      percentage: Math.round((totalBankroll / 100 - 1) * 100), // Percentage gain/loss
-      level: userLevel,
-      experience: experiencePoints,
-      bonusesEarned: bonusHistory.length
-    };
-    
-    setQuizHistory([...quizHistory, newQuizResult]);
-    localStorage.setItem('quizHistory', JSON.stringify([...quizHistory, newQuizResult]));
-    
-    // Update rankings after game completion
-    updateRankings();
   };
 
   // Timer effect
@@ -668,12 +674,12 @@ const QuizApp = () => {
           </button>
           </nav>
 
-        <div className="header-right">
+        {/* <div className="header-right">
           <div className="period-selector">{period}</div>
           <div className="user-profile">
             <div className="avatar">QM</div>
           </div>
-        </div>
+        </div> */}
         <div className="level-indicator d-flex align-items-center">
       <span className="me-2">Level {userLevel}</span>
 
