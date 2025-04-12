@@ -1,0 +1,156 @@
+/* Anti-design Navigation Buttons */
+nav {
+  display: flex;
+  margin: 10px 0;
+  transform: rotate(-1deg);
+}
+
+nav button {
+  position: relative;
+  margin: 0 -1px;
+  padding: 10px 15px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  border-width: 3px;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+nav button:nth-child(odd) {
+  transform: translateY(-3px) rotate(1deg);
+}
+
+nav button:nth-child(even) {
+  transform: translateY(3px) rotate(-1deg);
+}
+
+nav button:hover {
+  transform: translateY(0) rotate(0);
+  z-index: 2;
+}
+
+/* Individual button styles with clashing colors */
+nav button:nth-child(1) {
+  background-color: #ff6b6b;
+  border-color: #00c9a7;
+  color: #4a4e69;
+}
+
+nav button:nth-child(2) {
+  background-color: #ffd166;
+  border-color: #845ec2;
+  color: #22223b;
+}
+
+nav button:nth-child(3) {
+  background-color: #118ab2;
+  border-color: #ff9671;
+  color: #f0f3bd;
+}
+
+nav button:nth-child(4) {
+  background-color: #06d6a0;
+  border-color: #ff6f91;
+  color: #540b0e;
+}
+
+nav button:nth-child(5) {
+  background-color: #9b5de5;
+  border-color: #00bbf9;
+  color: #f7fff7;
+}
+
+/* Active button state */
+nav button.btn-info {
+  text-decoration: line-through;
+  font-style: italic;
+  box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Icon styles */
+nav button svg {
+  transform: rotate(-5deg) scale(1.2);
+  margin-right: 8px;
+  filter: drop-shadow(1px 1px 0 rgba(255, 255, 255, 0.5));
+}
+
+/* Add glitch effect on hover */
+nav button::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: linear-gradient(45deg, transparent 45%, #ff00ff 45%, #ff00ff 55%, transparent 55%);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+nav button:hover::before {
+  opacity: 0.4;
+}
+
+/* Add noise texture */
+nav::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+/* Logo and header styling to match the anti-design theme */
+.logo-container {
+  transform: rotate(3deg);
+  margin-right: 15px;
+}
+
+.logo {
+  font-family: 'Impact', sans-serif;
+  font-size: 28px;
+  background: linear-gradient(45deg, #ff00ff, #00ffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 5px;
+  border: 3px dashed #333;
+  transform: skew(-5deg, 2deg);
+}
+
+.header-right {
+  transform: rotate(-2deg);
+}
+
+.period-selector {
+  font-family: 'Comic Sans MS', cursive;
+  border: 4px dotted #00ff00;
+  padding: 5px 10px;
+  background-color: #ffff00;
+  color: #ff00ff;
+  font-weight: bold;
+}
+
+.user-profile .avatar {
+  background: repeating-radial-gradient(circle, #ff6b6b, #06d6a0 20px);
+  transform: rotate(5deg);
+  box-shadow: -3px 3px 0 #000;
+}
+
+.level-indicator {
+  font-family: 'VT323', monospace;
+  background-color: #222;
+  color: lime;
+  border: 2px solid lime;
+  padding: 5px 10px;
+  transform: rotate(-1deg);
+  text-shadow: 2px 2px 0 #000;
+  letter-spacing: 2px;
+}

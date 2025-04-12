@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
+import { useQuizContext } from '../context/QuizContext';
 
 const Dashboard = () => {
+  const { quizStats } = useQuizContext();
   const [activeTab, setActiveTab] = useState('overview');
-  const [period, setPeriod] = useState('This Month');
+  const [period] = useState('This Month');
+  const [totalGames, setTotalGames] = useState(0);
+  const [averageScore, setAverageScore] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [bestScore, setBestScore] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showProductionOverlay, setShowProductionOverlay] = useState(false);
   const [sortBy, setSortBy] = useState('volume'); // 'volume' or 'percentage'
@@ -252,12 +258,22 @@ const Dashboard = () => {
     }
   });
 
+  // Update the useEffect to use the context data
+  useEffect(() => {
+    if (quizStats) {
+      setTotalGames(quizStats.totalGames);
+      setAverageScore(quizStats.averageScore);
+      setTotalEarnings(quizStats.totalEarnings);
+      setBestScore(quizStats.bestScore);
+    }
+  }, [quizStats]);
+
   return (
     <div className="dashboard">
       <header>
         <div className="logo-container">
           <div className="logo">TW</div>
-          <span className="logo-text">Textile Waste Analytics</span>
+          <span className="logo-text">Analytics</span>
         </div>
         <ul className="nav-tabs">
           <li 
