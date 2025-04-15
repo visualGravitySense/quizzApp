@@ -631,10 +631,10 @@ const QuizApp = () => {
 
 
 <header>
-        <div className="logo-container">
+        {/* <div className="logo-container">
           <div className="logo">QM</div>
-          {/* <span className="logo-text">Quiz</span> */}
-        </div>
+          <span className="logo-text">Quiz</span>
+        </div> */}
         <nav>
         
         <button 
